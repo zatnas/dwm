@@ -750,9 +750,10 @@ drawbar(Monitor *m)
     w = TEXTW(tags[i]);
     drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
     drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
-    //drw_rect(drw, x + boxs, boxs, boxw, boxw,
-    //    m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-    //    urg & 1 << i);
+    /* do not draw small box */
+    // drw_rect(drw, x + boxs, boxs, boxw, boxw,
+    //     m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
+    //     urg & 1 << i);
     x += w;
   }
   w = blw = TEXTW(m->ltsymbol);
@@ -773,10 +774,14 @@ drawbar(Monitor *m)
   drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 }
 
+<<<<<<< HEAD
 void
+=======
+  void
+>>>>>>> No small box
 drawbars(void)
 {
-	Monitor *m;
+  Monitor *m;
 
 	for (m = mons; m; m = m->next)
 		drawbar(m);
