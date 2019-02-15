@@ -52,8 +52,14 @@ static const Layout layouts[] = {
 	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
+#define XK_ALV XF86XK_AudioLowerVolume
+#define XK_ARV XF86XK_AudioRaiseVolume
+
+#define TRUE 1
+#define FALSE 0
+
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#define CMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -62,7 +68,8 @@ static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	//{ MODKEY,			XK_w,      spawn,	   SHCMD("echo \"a\\nb\" | dmenu") },
+	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%") },
+	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%") },
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
