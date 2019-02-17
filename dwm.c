@@ -149,7 +149,6 @@ typedef struct {
 	int y;
 	int show;
 	Window win;
-	char text[256];
 } Bar;
 
 /* function declarations */
@@ -251,7 +250,8 @@ static void zoom(const Arg *arg);
 
 /* variables */
 static const char broken[] = "broken";
-static char stext[256];
+static char ustext[256];
+static char dstext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -478,7 +478,7 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + blw)
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - TEXTW(stext))
+		else if (ev->x > selmon->ww - TEXTW(ustext))
 			click = ClkStatusText;
 		else
 			click = ClkWinTitle;
@@ -745,8 +745,8 @@ drawbar(Monitor *m)
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
     drw_setscheme(drw, scheme[SchemeNorm]);
-    sw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
-    drw_text(drw, m->ww - sw, 0, sw, bh, 0, stext, 0);
+    sw = TEXTW(ustext) - lrpad + 2; /* 2px right padding */
+    drw_text(drw, m->ww - sw, 0, sw, bh, 0, ustext, 0);
   }
 
   for (c = m->clients; c; c = c->next) {
@@ -783,10 +783,10 @@ drawbar(Monitor *m)
       drw_rect(drw, x, 0, w, bh, 1, 1);
     }
   }
-  drw_map(drw, m->barwin, 0, 0, m->ww, bh);
+  drw_map(drw, eb.win, 0, 0, m->ww, bh);
 	drw_setscheme(drw, scheme[SchemeNorm]);
-	drw_text(drw, 0, 0, mons->ww, bh, 0, eb.text, 0);
-	drw_map(drw, eb.win, 0, 0, mons->ww, bh);
+	drw_text(drw, 0, 0, mons->ww, bh, 0, dstext, 0);
+	//drw_map(drw, eb.win, 0, 0, mons->ww, bh);
 }
 
 <<<<<<< HEAD
@@ -2104,18 +2104,18 @@ updatestatus(void)
 {
 	char text[512];
 	if(!gettextprop(root, XA_WM_NAME, text, sizeof(text))) {
-		strcpy(stext, "dwm-"VERSION);
-		eb.text[0] = '\0';
+		strcpy(ustext, "dwm-"VERSION);
+		dstext[0] = '\0';
 	}
 	else {
 		char *e = strchr(text, ';');
 		if(e) {
 			*e = '\0'; e++;
-			strncpy(eb.text, e, sizeof(eb.text)-1);
+			strncpy(dstext, e, sizeof(dstext)-1);
 		}
 		else
-			eb.text[0] = '\0';
-		strncpy(stext, text, sizeof(stext)-1);
+			dstext[0] = '\0';
+		strncpy(ustext, text, sizeof(ustext)-1);
 	}
 	drawbar(selmon);
 }
