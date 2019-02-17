@@ -121,18 +121,21 @@ struct Monitor {
 	int nmaster;
 	int num;
 	int by;               /* bar geometry */
+	int eby;              /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
 	unsigned int seltags;
 	unsigned int sellt;
 	unsigned int tagset[2];
 	int showbar;
+  int showebar;
 	int topbar;
 	Client *clients;
 	Client *sel;
 	Client *stack;
 	Monitor *next;
 	Window barwin;
+	Window ebarwin;
 	const Layout *lt[2];
 };
 
@@ -144,12 +147,6 @@ typedef struct {
 	int isfloating;
 	int monitor;
 } Rule;
-
-typedef struct {
-	int y;
-	int show;
-	Window win;
-} Bar;
 
 /* function declarations */
 static void applyrules(Client *c);
@@ -222,7 +219,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *);
 static void togglebar(const Arg *arg);
-static void toggleextrabar(const Arg *arg);
+static void toggleebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
@@ -282,7 +279,6 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
-static Bar eb;
 
 static int useargb = 0;
 static Visual *visual;
@@ -519,8 +515,6 @@ cleanup(void)
 		while (m->stack)
 			unmanage(m->stack, 0);
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
-	XUnmapWindow(dpy, eb.win);
-	XDestroyWindow(dpy, eb.win);
 	while (mons)
 		cleanupmon(mons);
 	for (i = 0; i < CurLast; i++)
@@ -608,7 +602,7 @@ configurenotify(XEvent *e)
 				for (c = m->clients; c; c = c->next)
 					if (c->isfullscreen)
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
-				XMoveResizeWindow(dpy, eb.win, mons->wx, eb.y, mons->ww, bh);
+				XMoveResizeWindow(dpy, m->ebarwin, mons->wx, m->eby, mons->ww, bh);
 			}
 			focus(NULL);
 			arrange(NULL);
@@ -678,6 +672,7 @@ createmon(void)
 	m->mfact = mfact;
 	m->nmaster = nmaster;
 	m->showbar = showbar;
+  m->showebar = showebar;
 	m->topbar = topbar;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
@@ -783,17 +778,13 @@ drawbar(Monitor *m)
       drw_rect(drw, x, 0, w, bh, 1, 1);
     }
   }
-  drw_map(drw, eb.win, 0, 0, m->ww, bh);
+  drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 	drw_setscheme(drw, scheme[SchemeNorm]);
-	drw_text(drw, 0, 0, mons->ww, bh, 0, dstext, 0);
-	//drw_map(drw, eb.win, 0, 0, mons->ww, bh);
+	drw_text(drw, 0, 0, m->ww, bh, 0, dstext, 0);
+	drw_map(drw, m->ebarwin, 0, 0, m->ww, bh);
 }
 
-<<<<<<< HEAD
 void
-=======
-  void
->>>>>>> No small box
 drawbars(void)
 {
   Monitor *m;
@@ -1628,7 +1619,6 @@ setup(void)
 	root = RootWindow(dpy, screen);
 	xinitvisual();
 	drw = drw_create(dpy, screen, root, sw, sh, visual, depth, cmap);
-  eb.show = extrabar;
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
@@ -1793,14 +1783,12 @@ togglebar(const Arg *arg)
 }
 
 void
-toggleextrabar(const Arg *arg)
+toggleebar(const Arg *arg)
 {
-	if(selmon == mons) {
-		eb.show = !eb.show;
-		updatebarpos(selmon);
-		XMoveResizeWindow(dpy, eb.win, selmon->wx, eb.y, selmon->ww, bh);
-		arrange(selmon);
-	}
+  selmon->showebar = !selmon->showebar;
+  updatebarpos(selmon);
+  XMoveResizeWindow(dpy, selmon->ebarwin, selmon->wx, selmon->eby, selmon->ww, bh);
+  arrange(selmon);
 }
 
 void
@@ -1917,13 +1905,14 @@ updatebars(void)
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
 		XMapRaised(dpy, m->barwin);
 		XSetClassHint(dpy, m->barwin, &ch);
-	}
-	if(!eb.win) {
-		eb.win = XCreateWindow(dpy, root, mons->wx, eb.y, mons->ww, bh, 0, DefaultDepth(dpy, screen),
-				       CopyFromParent, DefaultVisual(dpy, screen),
-				       CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
-		XDefineCursor(dpy, eb.win, cursor[CurNormal]->cursor);
-		XMapRaised(dpy, eb.win);
+    if(m->ebarwin)
+      continue;
+    m->ebarwin = XCreateWindow(dpy, root, m->wx, m->eby, mons->ww, bh, 0, depth,
+				                       InputOutput, visual,
+				                       CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
+    XDefineCursor(dpy, m->ebarwin, cursor[CurNormal]->cursor);
+    XMapRaised(dpy, m->ebarwin);
+		XSetClassHint(dpy, m->ebarwin, &ch);
 	}
 }
 
@@ -1934,17 +1923,16 @@ updatebarpos(Monitor *m)
 	m->wh = m->mh;
 	if (m->showbar) {
 		m->wh -= bh;
-		m->by = m->topbar ? m->wy : m->wy + m->wh;
-		m->wy = m->topbar ? m->wy + bh : m->wy;
+		m->by  = m->topbar ? m->wy : m->wy + m->wh;
+		m->wy  = m->topbar ? m->wy + bh : m->wy;
 	} else
-		m->by = -bh;
-	if(m == mons && eb.show) {
+		m->by  = -bh;
+	if(m->showebar) {
 		m->wh -= bh;
-		eb.y = topbar ? m->wy + m->wh : m->wy;
-		m->wy = m->topbar ? m->wy : m->wy + bh;
-	}
-	else
-		eb.y = -bh;
+		m->eby = m->topbar ? m->wy + m->wh : m->wy;
+		m->wy  = m->topbar ? m->wy : m->wy + bh;
+	} else
+		m->eby = -bh;
 }
 
 void

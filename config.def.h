@@ -5,8 +5,9 @@ static const unsigned int borderpx    = 0;        /* border pixel of windows */
 static const unsigned int gappx       = 6;        /* gap pixel between windows */
 static const unsigned int snap        = 32;       /* snap pixel */
 static const int showbar              = 1;        /* 0 means no bar */
+static const int showebar             = 1;        /* 0 means no bar */
 static const int topbar               = 1;        /* 0 means bottom bar */
-static const int extrabar            = 1;        /* 0 means no extra bar */
+static const int botbar               = 1;        /* 0 means no extra bar */
 static const char *fonts[]            = { "monospace:size=10" };
 static const char dmenufont[]         = "monospace:size=10";
 static const char col_gray1[]         = "#222222";
@@ -77,7 +78,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_b,      toggleextrabar, {0} },
+	{ MODKEY,                       XK_b,      toggleebar,     {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_j,      incnmaster,     {.i = +1 } },
