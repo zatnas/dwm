@@ -61,12 +61,14 @@ static const Layout layouts[] = {
 
 #define XK_ALV XF86XK_AudioLowerVolume
 #define XK_ARV XF86XK_AudioRaiseVolume
+#define XK_AM  XF86XK_AudioMute
 
 #define TRUE 1
 #define FALSE 0
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define CMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#define XSETROOT "&& $HOME/.config/scripts/xsetroot.sh"
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -75,8 +77,9 @@ static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%") },
-	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%") },
+	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%"XSETROOT) },
+	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%"XSETROOT) },
+	{ FALSE,                        XK_AM,     spawn,          CMD("pactl set-sink-mute 0 toggle"XSETROOT) },
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
