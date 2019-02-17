@@ -4,10 +4,9 @@
 static const unsigned int borderpx    = 0;        /* border pixel of windows */
 static const unsigned int gappx       = 6;        /* gap pixel between windows */
 static const unsigned int snap        = 32;       /* snap pixel */
-static const int showbar              = 1;        /* 0 means no bar */
-static const int showebar             = 1;        /* 0 means no bar */
-static const int topbar               = 1;        /* 0 means bottom bar */
-static const int botbar               = 1;        /* 0 means no extra bar */
+static const int showbar              = 1;        /* 0 means no top bar */
+static const int showebar             = 1;        /* 0 means no bot bar */
+static const int topbar               = 1;        /* 0 means top bar is bot bar */
 static const char *fonts[]            = { "monospace:size=10" };
 static const char dmenufont[]         = "monospace:size=10";
 static const char col_gray1[]         = "#222222";
