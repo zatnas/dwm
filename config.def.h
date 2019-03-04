@@ -14,12 +14,19 @@ static const char col_gray2[]         = "#444444";
 static const char col_gray3[]         = "#bbbbbb";
 static const char col_gray4[]         = "#eeeeee";
 static const char col_cyan[]          = "#005577";
+static const char col_black[]       = "#000000";
+static const char col_red[]         = "#ff0000";
+static const char col_yellow[]      = "#ffff00";
+static const char col_white[]       = "#ffffff";
+
 #define baralpha    0xd0
 #define borderalpha OPAQUE
 static const char *colors[][3]        = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+	/*					fg         bg          border   */
+	[SchemeNorm] =	 { col_gray3, col_gray1,  col_gray2 },
+	[SchemeSel]  =	 { col_gray4, col_cyan,   col_cyan },
+	[SchemeWarn] =	 { col_black, col_yellow, col_red },
+	[SchemeUrgent]=	 { col_white, col_red,    col_red },
 };
 static const unsigned int alphas[][3]      = {
 	/*               fg      bg        border     */
@@ -70,7 +77,9 @@ static const Layout layouts[] = {
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define CMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
-#define XSETROOT "&& $HOME/.config/scripts/xsetroot.sh &"
+#define SCRIPT "$HOME/.config/scripts/"
+#define XSETROOT "&& "SCRIPT"/xsetroot.sh"
+#define XSETVOL "&& "SCRIPT"/xsetroot-volume.sh"
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -79,9 +88,9 @@ static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%"XSETROOT) },
-	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%"XSETROOT) },
-	{ FALSE,                        XK_AM,     spawn,          CMD("pactl set-sink-mute 0 toggle"XSETROOT) },
+	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%"XSETVOL) },
+	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%"XSETVOL) },
+	{ FALSE,                        XK_AM,     spawn,          CMD("pactl set-sink-mute 0 toggle"XSETVOL) },
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
@@ -118,6 +127,7 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_x,      quit,           {0} },
+	{ MODKEY|ControlMask,           XK_x,      spawn,          CMD(SCRIPT"dmenu-system") },
 };
 
 /* button definitions */

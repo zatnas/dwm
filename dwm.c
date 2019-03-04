@@ -63,7 +63,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeWarn, SchemeUrgent }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -728,20 +728,39 @@ dirtomon(int dir)
 	return m;
 }
 
-  void
+void
 drawbar(Monitor *m)
 {
   int x, w, sw = 0;
   int boxs = drw->fonts->h / 9;
   int boxw = drw->fonts->h / 6 + 2;
   unsigned int i, occ = 0, urg = 0;
+  char *topts = ustext;
+  char *toptp = ustext;
+  int toptx = 0;
+  char topctmp;
+  char *botts = dstext;
+  char *bottp = dstext;
+  int bottx = 0;
+  char botctmp;
   Client *c;
 
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
     drw_setscheme(drw, scheme[SchemeNorm]);
     sw = TEXTW(ustext) - lrpad + 2; /* 2px right padding */
-    drw_text(drw, m->ww - sw, 0, sw, bh, 0, ustext, 0);
+    // drw_text(drw, m->ww - sw, 0, sw, bh, 0, ustext, 0);
+		while (1) {
+			if ((unsigned int)*topts > LENGTH(colors)) { topts++; continue ; }
+			topctmp = *topts;
+			*topts = '\0';
+			drw_text(drw, m->ww - sw + toptx, 0, sw - toptx, bh, 0, toptp, 0);
+			toptx += TEXTW(toptp) -lrpad;
+			if (topctmp == '\0') { break; }
+			drw_setscheme(drw, scheme[(unsigned int)(topctmp-1)]);
+			*topts = topctmp;
+			toptp = ++topts;
+		}
   }
 
   for (c = m->clients; c; c = c->next) {
@@ -780,8 +799,20 @@ drawbar(Monitor *m)
   }
   drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 	drw_setscheme(drw, scheme[SchemeNorm]);
-	drw_text(drw, 0, 0, m->ww, bh, 0, dstext, 0);
-	drw_map(drw, m->ebarwin, 0, 0, m->ww, bh);
+  // drw_text(drw, m->ww - sw, 0, sw, bh, 0, ustext, 0);
+  // drw_text(drw, 0, 0, m->ww, bh, 0, dstext, 0);
+  while (1) {
+    if ((unsigned int)*botts > LENGTH(colors)) { botts++; continue ; }
+    botctmp = *botts;
+    *botts = '\0';
+    drw_text(drw, 0, 0, m->ww +bottx, bh, 0, bottp, 0);
+    bottx += TEXTW(bottp) -lrpad;
+    if (botctmp == '\0') { break; }
+    drw_setscheme(drw, scheme[(unsigned int)(botctmp-1)]);
+    *botts = botctmp;
+    bottp = ++botts;
+  }
+  drw_map(drw, m->ebarwin, 0, 0, m->ww, bh);
 }
 
 void
