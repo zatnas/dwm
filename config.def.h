@@ -67,9 +67,14 @@ static const Layout layouts[] = {
 	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
+#define XK_AN  XF86XK_AudioNext
+#define XK_AP  XF86XK_AudioPrev
+#define XK_APL XF86XK_AudioPlay
 #define XK_ALV XF86XK_AudioLowerVolume
 #define XK_ARV XF86XK_AudioRaiseVolume
 #define XK_AM  XF86XK_AudioMute
+#define XK_BU  XF86MonBrightnessUp
+#define XK_BD  XF86MonBrightnessDown
 
 #define TRUE 1
 #define FALSE 0
@@ -83,13 +88,19 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-static const char *termcmd[]  = { "st", NULL };
+static const char *termcmd[]  = { "termite", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ FALSE,                        XK_ALV,    spawn,          CMD("pactl set-sink-volume 0 -1%"XSETVOL) },
 	{ FALSE,                        XK_ARV,    spawn,          CMD("pactl set-sink-volume 0 +1%"XSETVOL) },
 	{ FALSE,                        XK_AM,     spawn,          CMD("pactl set-sink-mute 0 toggle"XSETVOL) },
+	{ FALSE,                        XK_AN,     spawn,          CMD("mpc next") },
+	{ FALSE,                        XK_AP,     spawn,          CMD("mpc prev") },
+	{ FALSE,                        XK_APL,    spawn,          CMD("mpc toggle") },
+	{ FALSE,                        XK_BU,     spawn,          CMD("light -A 1") },
+	{ FALSE,                        XK_BD,     spawn,          CMD("light -U 1") },
+	{ FALSE,                        XK_Print,  spawn,          CMD("import -quality 100 -window root $HOME/Pictures/screenshot$(date +%y%m%d%H%M%S%N).jpg") },
 	{ MODKEY,                       XK_m,      spawn,          CMD(SCRIPT"mounter") },
 	{ MODKEY|ShiftMask,             XK_m,      spawn,          CMD(SCRIPT"unmounter") },
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
