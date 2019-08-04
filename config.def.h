@@ -73,8 +73,8 @@ static const Layout layouts[] = {
 #define XK_ALV XF86XK_AudioLowerVolume
 #define XK_ARV XF86XK_AudioRaiseVolume
 #define XK_AM  XF86XK_AudioMute
-#define XK_BU  XF86MonBrightnessUp
-#define XK_BD  XF86MonBrightnessDown
+#define XK_BU  XF86XK_MonBrightnessUp
+#define XK_BD  XF86XK_MonBrightnessDown
 
 #define TRUE 1
 #define FALSE 0
